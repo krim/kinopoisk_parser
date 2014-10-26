@@ -77,12 +77,12 @@ module Kinopoisk
 
     # Returns a string containing world premiere date
     def premiere_world
-      doc.search('td#div_world_prem_td2 .prem_ical').first.attr 'data-date-premier-start-link'
+      doc.search('td#div_world_prem_td2 .prem_ical').first.attr 'data-date-premier-start-link' rescue nil
     end
 
     # Returns a string containing Russian premiere date
     def premiere_ru
-      doc.search('td#div_rus_prem_td2 .prem_ical').first.attr 'data-date-premier-start-link'
+      doc.search('td#div_rus_prem_td2 .prem_ical').first.attr 'data-date-premier-start-link' rescue nil
     end
 
     # Returns a float kinopoisk rating
