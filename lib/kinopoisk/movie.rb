@@ -19,6 +19,14 @@ module Kinopoisk
       @title = title
     end
 
+    def series?
+      doc.search("h1[itemprop=name] span").text.include?("сериал")
+    end
+
+    def film?
+      !series?
+    end
+
     # Returns an array of strings containing actor names
     def actors
       doc.search('#actorList ul li a').map{|n| n.text.gsub("\n",'').strip}
