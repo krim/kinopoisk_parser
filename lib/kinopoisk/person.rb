@@ -21,6 +21,17 @@ module Kinopoisk
       doc.search(".film-img-box img").first.attr 'src'
     end
 
+    def photos
+      @photos_page ||= Kinopoisk.parse url + "photos/"
+      photos_url = @photos_page.search("table.fotos a").first.attr 'href'
+      @photo_page ||= Kinopoisk.parse "http://www.kinopoisk.ru" + photos_url
+      wallpapers = @photo_page.search("script").
+                              select{|z| z.text if z.content.include?("var wallpapers") }.
+                              first.content
+      wallpapers = wallpapers.gsub("\n    var wallpapers = ","").gsub("\n","").chomp(";")
+      JSON.parse(wallpapers)
+    end
+
     # Returns a string containing name in russian
     def name
       @name ||= doc.search('.moviename-big').text
