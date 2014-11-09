@@ -19,6 +19,18 @@ module Kinopoisk
       @title = title
     end
 
+    def stills
+      @stills_page ||= Kinopoisk.parse url + "stills/"
+      stills_url = @stills_page.search("table.fotos a").first.attr 'href'
+      @photo_page ||= Kinopoisk.parse "http://www.kinopoisk.ru" + stills_url
+      wallpapers = @photo_page.search("script").
+                              select{|z| z.text if z.content.include?("var wallpapers") }.
+                              first.content
+      wallpapers = wallpapers.gsub("\n    var wallpapers = ","").gsub("\n","").chomp(";")
+      JSON.parse(wallpapers)
+    end
+
+
     def series?
       doc.search("h1[itemprop=name] span").text.include?("сериал")
     end
