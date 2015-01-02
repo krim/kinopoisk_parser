@@ -50,6 +50,8 @@ module Kinopoisk
     # Returns a birthdate date object
     def birthdate
       Date.strptime doc.search("td.birth").first.attr 'birthdate'
+    rescue
+      nil
     end
 
     # Returns a string containing birthplace
