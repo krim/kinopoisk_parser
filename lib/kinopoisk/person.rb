@@ -23,13 +23,18 @@ module Kinopoisk
 
     def photos
       @photos_page ||= Kinopoisk.parse url + "photos/"
-      photos_url = @photos_page.search("table.fotos a").first.attr 'href'
-      @photo_page ||= Kinopoisk.parse "http://www.kinopoisk.ru" + photos_url
-      wallpapers = @photo_page.search("script").
-                              select{|z| z.text if z.content.include?("var wallpapers") }.
-                              first.content
-      wallpapers = wallpapers.gsub("\n    var wallpapers = ","").gsub("\n","").chomp(";")
-      JSON.parse(wallpapers)
+      photos_url = @photos_page.search("table.fotos a").first
+      if photos_url.present?
+        photos_url = photos_url.attr 'href'
+        @photo_page ||= Kinopoisk.parse "http://www.kinopoisk.ru" + photos_url
+        wallpapers = @photo_page.search("script").
+                                select{|z| z.text if z.content.include?("var wallpapers") }.
+                                first.content
+        wallpapers = wallpapers.gsub("\n    var wallpapers = ","").gsub("\n","").chomp(";")
+        JSON.parse(wallpapers)
+      else
+        {}
+      end
     end
 
     # Returns a string containing name in russian
