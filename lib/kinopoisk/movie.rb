@@ -263,6 +263,13 @@ module Kinopoisk
       doc.search("//td[text()='#{name}']/following-sibling::*").text
     end
 
+    def search_by_text_hash(name)
+      doc.search("//td[text()='#{name}']/following-sibling::* a").search('a').inject({}) do |h, p|
+        h[p.attr('href').scan(/\d+/).first.to_i] = p.text  if p.attr('href').include?('name')
+        h
+      end
+    end
+
     def to_array(string)
       string.gsub('...', '').split(', ')
     end
