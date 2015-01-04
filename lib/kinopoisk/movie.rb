@@ -177,7 +177,7 @@ module Kinopoisk
 
     # Returns an array of strings containing actor names
     def actors_hash
-      search_by_itemprop 'actors'
+      search_by_itemprop_hash 'actors'
     end
 
     # Returns an hash of id and director names
