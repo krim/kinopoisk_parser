@@ -175,6 +175,51 @@ module Kinopoisk
       to_array search_by_text 'монтаж'
     end
 
+    # Returns an array of strings containing actor names
+    def actors_hash
+      search_by_itemprop 'actors'
+    end
+
+    # Returns an hash of id and director names
+    def directors_hash
+      search_by_itemprop_hash 'director'
+    end
+
+    # Returns an hash of id and producer names
+    def producers_hash
+      search_by_itemprop_hash 'producer'
+    end
+
+    # Returns an hash of id and composer names
+    def composers_hash
+      search_by_itemprop_hash 'musicBy'
+    end
+
+    # Returns an hash of id and genres
+    def genres_hash
+      search_by_itemprop_hash 'genre'
+    end
+
+    # Returns an hash of id and writer names
+    def writers_hash
+      search_by_text_hash 'сценарий'
+    end
+
+    # Returns an hash of id and operator names
+    def operators_hash
+      search_by_text_hash 'оператор'
+    end
+
+    # Returns an hash of id and art director names
+    def art_directors_hash
+      search_by_text_hash 'художник'
+    end
+
+    # Returns an hash of id and editor names
+    def editors_hash
+      search_by_text_hash 'монтаж'
+    end
+
     # Returns a string containing movie slogan
     def slogan
       search_by_text 'слоган'
@@ -205,6 +250,13 @@ module Kinopoisk
 
     def search_by_itemprop(name)
       doc.search("[itemprop=#{name}]").text
+    end
+
+    def search_by_itemprop_hash(name)
+      doc.search("[itemprop=#{name}] a").inject({}) do |h, p|
+        h[p.attr('href').scan(/\d+/).first.to_i] = p.text  if p.attr('href').include?('name')
+        h
+      end
     end
 
     def search_by_text(name)
