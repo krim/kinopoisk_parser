@@ -27,6 +27,6 @@ module Kinopoisk
   # Returns a nokogiri document or an error if fetch response status is not 200
   def self.parse(url)
     p = fetch url
-    p.status.to_i==200 ? Nokogiri::HTML(p.body_str.encode('utf-8','cp1251').force_encoding('utf-8')) : raise(NotFound)
+    p.status.to_i==200 ? Nokogiri::HTML(p.body_str.force_encoding('windows-1251').encode('utf-8')) : raise(NotFound)
   end
 end
