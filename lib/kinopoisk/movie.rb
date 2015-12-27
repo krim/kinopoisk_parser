@@ -1,7 +1,7 @@
 #coding: UTF-8
 module Kinopoisk
   class Movie
-    attr_accessor :id, :url, :title
+    attr_accessor :id, :url, :title, :base_url
 
     # New instance can be initialized with id(integer) or title(string). Second
     # argument may also receive a string title to make it easier to
@@ -15,21 +15,31 @@ module Kinopoisk
     #
     def initialize(input, title=nil)
       @id    = input.is_a?(String) ? find_by_title(input) : input
-      @url   = "http://www.kinopoisk.ru/film/#{id}/"
+      @base_url = "http://www.kinopoisk.ru/film/#{id}/"
+      @url      = @base_url + "details/"
       @title = title
     end
 
     def stills
-      @stills_page ||= Kinopoisk.parse url + "stills/"
-      stills_url = @stills_page.search("table.fotos a").first.attr 'href'
-      @photo_page ||= Kinopoisk.parse "http://www.kinopoisk.ru" + stills_url
-      wallpapers = @photo_page.search("script").
-                              select{|z| z.text if z.content.include?("var wallpapers") }.
-                              first.content
-      wallpapers = wallpapers.gsub("\n    var wallpapers = ","").gsub("\n","").chomp(";")
-      JSON.parse(wallpapers)
+      @stills_page ||= Kinopoisk.parse base_url + "stills/"
+      stills_url = @stills_page.search("table.fotos a").first
+      unless stills_url.nil?
+        stills_url = stills_url.attr 'href'
+        @photo_page ||= Kinopoisk.parse "http://www.kinopoisk.ru" + stills_url
+        wallpapers = @photo_page.search("script").
+                                select{|z| z.text if z.content.include?("var wallpapers") }.
+                                first.content
+        wallpapers = wallpapers.gsub("\n    var wallpapers = ","").gsub("\n","").chomp(";")
+        JSON.parse(wallpapers)
+      else
+        {}
+      end
     end
 
+    def keywords
+      @keywords_page ||= Kinopoisk.parse base_url + "keywords/"
+      @keywords_page.css("ul.keywordsList li a").map{|a| a.text}
+    end
 
     def series?
       doc.search("h1[itemprop=name] span").text.include?("сериал")

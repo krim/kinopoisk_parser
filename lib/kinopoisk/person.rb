@@ -24,7 +24,7 @@ module Kinopoisk
     def photos
       @photos_page ||= Kinopoisk.parse url + "photos/"
       photos_url = @photos_page.search("table.fotos a").first
-      if photos_url.present?
+      unless photos_url.nil?
         photos_url = photos_url.attr 'href'
         @photo_page ||= Kinopoisk.parse "http://www.kinopoisk.ru" + photos_url
         wallpapers = @photo_page.search("script").
