@@ -13,22 +13,21 @@ module Kinopoisk
     # Initializing by title would send a search request and return first match.
     # Movie page request is made once and on the first access to a remote data.
     #
-    def initialize(input, title=nil, proxy_url: nil, proxy_type: nil, debug: false)
+    def initialize(input, title=nil, proxies: nil, debug: false)
       @id    = input.is_a?(String) ? find_by_title(input) : input
       @base_url = "http://www.kinopoisk.ru/film/#{id}/"
       @url      = @base_url + "details/"
       @title = title
-      @proxy_url = proxy_url
-      @proxy_type = proxy_type
+      @proxies = proxies
       @debug = debug
     end
 
     def stills
-      @stills_page ||= Kinopoisk.parse(base_url + "stills/", proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
+      @stills_page ||= Kinopoisk.parse(base_url + "stills/", proxies: @proxies, debug: @debug)
       stills_url = @stills_page.search("table.fotos a").first
       unless stills_url.nil?
         stills_url = stills_url.attr 'href'
-        @photo_page ||= Kinopoisk.parse("http://www.kinopoisk.ru" + stills_url, proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
+        @photo_page ||= Kinopoisk.parse("http://www.kinopoisk.ru" + stills_url, proxies: @proxies, debug: @debug)
         wallpapers = @photo_page.search("script").
                                 select{|z| z.text if z.content.include?("var wallpapers") }.
                                 first.content
@@ -40,7 +39,7 @@ module Kinopoisk
     end
 
     def keywords
-      @keywords_page ||= Kinopoisk.parse(base_url + "keywords/", proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
+      @keywords_page ||= Kinopoisk.parse(base_url + "keywords/", proxies: @proxies, debug: @debug)
       @keywords_page.css("ul.keywordsList li a").map{|a| a.text}
     end
 
@@ -251,14 +250,14 @@ module Kinopoisk
     private
 
     def doc
-      @doc ||= Kinopoisk.parse(url, proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
+      @doc ||= Kinopoisk.parse(url, proxies: @proxies, debug: @debug)
     end
 
     # Kinopoisk has defined first=yes param to redirect to first result
     # Return its id from location header
     def find_by_title(title)
       url = SEARCH_URL+"#{URI.escape(title)}&first=yes"
-      Kinopoisk.fetch(url, proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug).headers['Location'].to_s.match(/\/(\d*)\/$/)[1]
+      Kinopoisk.fetch(url, proxies: @proxies, debug: @debug).headers['Location'].to_s.match(/\/(\d*)\/$/)[1]
     end
 
     def search_by_itemprop(name)

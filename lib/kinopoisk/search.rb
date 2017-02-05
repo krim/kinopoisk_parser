@@ -3,9 +3,10 @@ module Kinopoisk
   class Search
     attr_accessor :query, :url
 
-    def initialize(query)
+    def initialize(query, proxies: nil)
       @query = query
       @url   = SEARCH_URL + URI.escape(query.to_s)
+      @proxies = proxies
     end
 
     # Returns an array containing Kinopoisk::Movie instances
@@ -21,7 +22,7 @@ module Kinopoisk
     private
 
     def doc
-      @doc ||= Kinopoisk.parse(url, proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
+      @doc ||= Kinopoisk.parse(url, proxy_url: @proxies, debug: @debug)
     end
 
     def find_nodes(type)

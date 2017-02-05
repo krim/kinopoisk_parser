@@ -11,23 +11,38 @@ module Kinopoisk
 
   class << self
     # Headers are needed to mimic proper request so kinopoisk won't block it
-    def fetch(url, proxy_url: nil, proxy_type: nil, debug: false)
-      c = Curl::Easy.new(url+ "?ncrnd=#{rand(5555)}&nocookiesupport=yes") do |curl|
-        curl.proxy_url = proxy_url unless proxy_url.nil?
-        curl.timeout = 300
-        curl.proxy_type = proxy_type unless proxy_type.nil?
-        curl.headers['User-Agent'] = user_agent
-        curl.headers['Accept-Encoding'] = 'en-US,en;q=0.8,ru;q=0.6,uk;q=0.4,es;q=0.2'
-        curl.verbose = debug
-        curl.follow_location = true
+    def fetch(url, proxies: nil, debug: false)
+      tryes = 0
+      proxy_url = nil
+      proxy_type = nil
+      begin
+        if proxies.present?
+          proxy = proxies.sample
+          proxy_url = proxy[:ip]
+          proxy_type = proxy[:type]
+        end
+        c = Curl::Easy.new(url+ "?ncrnd=#{rand(5555)}&nocookiesupport=yes") do |curl|
+          curl.proxy_url = proxy_url unless proxy_url.nil?
+          curl.timeout = 300
+          curl.proxy_type = proxy_type unless proxy_type.nil?
+          curl.headers['User-Agent'] = user_agent
+          curl.headers['Accept-Encoding'] = 'en-US,en;q=0.8,ru;q=0.6,uk;q=0.4,es;q=0.2'
+          curl.verbose = debug
+          curl.follow_location = true
+        end
+        c.perform
+      rescue
+        puts "try #{tryes += 1}"
+        puts "BAD PROXY:: #{proxy}"
+        proxies = proxies.select { |hash_proxy| hash_proxy[:ip] != proxy[:ip] }
+        retry if tryes < proxies.count
       end
-      c.perform
       c
     end
 
     # Returns a nokogiri document or an error if fetch response status is not 200
-    def parse(url, proxy_url: nil, proxy_type: nil, debug: false)
-      p = fetch(url, proxy_url: proxy_url, proxy_type: proxy_type, debug: debug)
+    def parse(url, proxies: nil, debug: false)
+      p = fetch(url, proxies: proxies, debug: debug)
       p.status.to_i==200 ? Nokogiri::HTML(p.body_str.force_encoding('windows-1251').encode('utf-8')) : raise(NotFound)
     end
 

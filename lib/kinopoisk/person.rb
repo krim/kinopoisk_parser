@@ -10,10 +10,11 @@ module Kinopoisk
     #
     # Request to kinopoisk is made once and on the first access to a remote data.
     #
-    def initialize(id, name=nil)
+    def initialize(id, name=nil, proxies: nil)
       @id   = id
       @url  = "http://www.kinopoisk.ru/name/#{id}/"
       @name = name
+      @proxies = proxies
     end
 
     # Returns a url to a poster
@@ -22,11 +23,11 @@ module Kinopoisk
     end
 
     def photos
-      @photos_page ||= Kinopoisk.parse(url + "photos/", proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
+      @photos_page ||= Kinopoisk.parse(url + "photos/", proxies: @proxies, debug: @debug)
       photos_url = @photos_page.search("table.fotos a").first
       unless photos_url.nil?
         photos_url = photos_url.attr 'href'
-        @photo_page ||= Kinopoisk.parse("http://www.kinopoisk.ru" + photos_url, proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
+        @photo_page ||= Kinopoisk.parse("http://www.kinopoisk.ru" + photos_url, proxies: @proxies, debug: @debug)
         wallpapers = @photo_page.search("script").
                                 select{|z| z.text if z.content.include?("var wallpapers") }.
                                 first.content
@@ -102,7 +103,7 @@ module Kinopoisk
     private
 
     def doc
-      @doc ||= Kinopoisk.parse(url, proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
+      @doc ||= Kinopoisk.parse(url, proxies: @proxies, debug: @debug)
     end
 
     def search_by_text(name)
