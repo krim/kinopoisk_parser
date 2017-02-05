@@ -19,7 +19,7 @@ module Kinopoisk
         if proxies.present?
           proxy = proxies.sample
           proxy_url = proxy[:proxy_url]
-          proxy_type = proxy[:type]
+          proxy_type = proxy[:proxy_type]
         end
         c = Curl::Easy.new(url+ "?ncrnd=#{rand(5555)}&nocookiesupport=yes") do |curl|
           curl.proxy_url = proxy_url unless proxy_url.nil?
