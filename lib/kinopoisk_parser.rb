@@ -23,7 +23,7 @@ module Kinopoisk
         end
         c = Curl::Easy.new(url+ "?ncrnd=#{rand(5555)}&nocookiesupport=yes") do |curl|
           curl.proxy_url = proxy_url unless proxy_url.nil?
-          curl.timeout = 300
+          curl.timeout = 30
           curl.proxy_type = proxy_type unless proxy_type.nil?
           curl.headers['User-Agent'] = user_agent
           curl.headers['Accept-Encoding'] = 'en-US,en;q=0.8,ru;q=0.6,uk;q=0.4,es;q=0.2'
