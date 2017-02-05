@@ -18,7 +18,7 @@ module Kinopoisk
       begin
         if proxies.present?
           proxy = proxies.sample
-          proxy_url = proxy[:ip]
+          proxy_url = proxy[:proxy_url]
           proxy_type = proxy[:type]
         end
         c = Curl::Easy.new(url+ "?ncrnd=#{rand(5555)}&nocookiesupport=yes") do |curl|
@@ -34,7 +34,7 @@ module Kinopoisk
       rescue
         puts "try #{tryes += 1}"
         puts "BAD PROXY:: #{proxy}"
-        proxies = proxies.select { |hash_proxy| hash_proxy[:ip] != proxy[:ip] }
+        proxies = proxies.select { |hash_proxy| hash_proxy[:proxy_url] != proxy[:proxy_url] }
         retry if tryes < proxies.count
       end
       c
