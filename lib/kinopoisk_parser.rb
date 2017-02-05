@@ -35,7 +35,7 @@ module Kinopoisk
         puts "try #{tryes += 1}"
         puts "BAD PROXY:: #{proxy}"
         proxies = proxies.select { |hash_proxy| hash_proxy[:proxy_url] != proxy[:proxy_url] }
-        retry if tryes < proxies.count
+        retry if proxies.count > 0
       end
       c
     end
