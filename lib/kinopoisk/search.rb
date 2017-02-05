@@ -21,7 +21,7 @@ module Kinopoisk
     private
 
     def doc
-      @doc ||= Kinopoisk.parse url
+      @doc ||= Kinopoisk.parse(url, proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
     end
 
     def find_nodes(type)

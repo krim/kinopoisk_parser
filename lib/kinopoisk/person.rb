@@ -22,11 +22,11 @@ module Kinopoisk
     end
 
     def photos
-      @photos_page ||= Kinopoisk.parse url + "photos/"
+      @photos_page ||= Kinopoisk.parse(url + "photos/", proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
       photos_url = @photos_page.search("table.fotos a").first
       unless photos_url.nil?
         photos_url = photos_url.attr 'href'
-        @photo_page ||= Kinopoisk.parse "http://www.kinopoisk.ru" + photos_url
+        @photo_page ||= Kinopoisk.parse("http://www.kinopoisk.ru" + photos_url, proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
         wallpapers = @photo_page.search("script").
                                 select{|z| z.text if z.content.include?("var wallpapers") }.
                                 first.content
@@ -102,7 +102,7 @@ module Kinopoisk
     private
 
     def doc
-      @doc ||= Kinopoisk.parse url
+      @doc ||= Kinopoisk.parse(url, proxy_url: @proxy_url, proxy_type: @proxy_type, debug: @debug)
     end
 
     def search_by_text(name)
